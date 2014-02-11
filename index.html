@@ -4,21 +4,29 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CrossStone - Manage milestones over cross repos</title>
-    <!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css"> -->
-    <!-- Optional theme -->
-    <!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css"> -->
-    <link rel="stylesheet" href="assets/css/bootstrap.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="assets/css/docs.css">
     <link rel="stylesheet" href="assets/css/font-awesome.css">
     <link rel="stylesheet" href="assets/css/bootstrap-social.css">
 
+    <style>
+      .jumbotron {
+        background: transparent;
+      }
 
+      .jumbotron h1, .jumbotron h2 {
+        color: #333;
+      }
+
+      .jumbotron > div {
+        margin-top: 30px;
+      }
+    </style>
   </head>
   <body ng-app="CrossStone" ng-cloak>
     <div class="container">
-      <h1>CrossStone <small>Managing Milestones over cross repos</small></h1>
-      <hr>
-      <div class="alert alert-danger" ng-if="errorMessage">{{errorMessage}}</div>
+      <div class="alert alert-danger" ng-if="errorMessage" ng-bind="errorMessage"></div>
       <div ng-view></div>
     </div>
     <script src="bower_components/oauth.io/oauth.js"></script>

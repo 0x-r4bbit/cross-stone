@@ -1,6 +1,18 @@
-<h2>Organisations</h2>
+<h1>CrossStone <small>Managing Milestones over cross repos</small></h1>
+<hr>
 <ul>
-  <li ng-repeat="org in orgs">
-    {{org.login}}
+  <li>Your Repositories
+    <ul>
+      <li ng-repeat="repo in repos">
+        {{repo.name}}
+      </li>
+    </ul>
+  </li>
+  <li>Your Organisations
+    <ul>
+      <li ng-repeat="org in orgs">
+        {{org.login}}
+      </li>
+    </ul>
   </li>
 </ul>

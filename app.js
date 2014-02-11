@@ -9,7 +9,7 @@ angular.module('CrossStone').config(['$routeProvider', 'localStorageServiceProvi
       controller: 'DashboardController',
       templateUrl: 'templates/dashboard.html',
       resolve: {
-        api: function ($q, localStorageService) {
+        api: function ($q, localStorageService, $location) {
           var deferred = $q.defer();
 
           var response = OAuth.create('github', {
@@ -18,7 +18,7 @@ angular.module('CrossStone').config(['$routeProvider', 'localStorageServiceProvi
           if (response) {
             deferred.resolve(response);
           } else {
-            deferred.reject();
+            $location.path('/login');
           }
           return deferred.promise;
         }
@@ -50,6 +50,18 @@ angular.module('CrossStone').controller('AppController', ['$rootScope', 'localSt
 }]);
 
 angular.module('CrossStone').controller('DashboardController', function ($scope, api, $rootScope, $location) {
+
+  api.get('user/repos').done(function (repos) {
+    $scope.$apply(function () {
+      $scope.repos = repos;
+    });
+  }).fail(function () {
+    $scope.$apply(function () {
+      $rootScope.errorMessage = 'OAuth.js failed to create API instance.. Sorry :(';
+      $location.path('/login')
+    });
+  });
+
   api.get('user/orgs').done(function (orgs) {
     $scope.$apply(function () {
       $scope.orgs = orgs;
@@ -68,6 +80,7 @@ angular.module('CrossStone').controller('LoginController', ['$scope', '$rootScop
     OAuth.popup('github', function (error, result) {
       if (error) {
         $location.path('/login');
+        $scope.$apply();
       }
       localStorageService.set('_accessToken', result.access_token);
       $rootScope.errorMessage = false;
