@@ -1,0 +1,22 @@
+{
+  "name": "cross-stone",
+  "version": "0.0.0",
+  "description": "Manage milestones over cross repos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PascalPrecht/cross-stone.git"
+  },
+  "author": "Pascal Precht <pascal.precht@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PascalPrecht/cross-stone/issues"
+  },
+  "homepage": "https://github.com/PascalPrecht/cross-stone",
+  "engines": {
+    "node": "0.10.x"
+  }
+}
