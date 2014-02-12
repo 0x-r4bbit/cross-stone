@@ -1,22 +1,68 @@
 angular.module('CrossStone', ['ngRoute', 'LocalStorageModule']);
 
-angular.module('CrossStone').config(['$routeProvider', 'localStorageServiceProvider', function ($routeProvider, localStorageServiceProvider) {
+angular.module('CrossStone').provider('OAuthService', function () {
+
+  this.initialize = function (key) {
+    OAuth.initialize(key);
+  };
+
+  this.$get = function ($timeout, $q) {
+
+    var asyncAngularify = function (oauth, callback) {
+      return callback ? function () {
+        var args = arguments;
+        $timeout(function () {
+          callback.apply(oauth, args);
+        }, 0);
+      } : angular.noop;
+    };
+
+    return {
+      popup: function (provider, cb) {
+        OAuth.popup(provider, asyncAngularify(OAuth, cb));
+      },
+      create: function (provider, options) {
+        var resource = OAuth.create(provider, options),
+            instance = {};
+
+        instance.access_token = resource.access_token;
+
+        instance.get = function (opts, opts2) {
+          var deferred = $q.defer();
+          resource.get(opts, opts2).done(function (response) {
+            deferred.resolve(response);
+          }).fail(function (err) {
+            deferred.reject(fail);
+          });
+          return deferred.promise;
+        };
+
+        return instance;
+      }
+    };
+  };
+});
+
+angular.module('CrossStone').config(function ($routeProvider, localStorageServiceProvider, OAuthServiceProvider) {
 
   localStorageServiceProvider.setPrefix('CrossStone');
+  OAuthServiceProvider.initialize('qX_3NS1--aUs8WgkyN2XLEXd7jI');
 
   $routeProvider
     .when('/dashboard', {
       controller: 'DashboardController',
       templateUrl: 'templates/dashboard.html',
       resolve: {
-        api: function ($q, localStorageService, $location) {
+        github: function ($q, localStorageService, $location, OAuthService) {
+
           var deferred = $q.defer();
 
-          var response = OAuth.create('github', {
+          var github = OAuthService.create('github', {
             access_token: localStorageService.get('_accessToken')
           });
-          if (response && response.access_token !== null) {
-            deferred.resolve(response);
+
+          if (github && github.access_token !== null) {
+            deferred.resolve(github);
           } else {
             localStorageService.remove('_accessToken');
             $location.path('/login');
@@ -32,60 +78,44 @@ angular.module('CrossStone').config(['$routeProvider', 'localStorageServiceProvi
     .otherwise({
       redirectTo: '/dashboard'
     });
-}]);
-
-angular.module('CrossStone').run(function ($rootScope, $location) {
-  OAuth.initialize('qX_3NS1--aUs8WgkyN2XLEXd7jI');
 });
 
-angular.module('CrossStone').controller('AppController', ['$rootScope', 'localStorageService', function ($rootScope, localStorageService, $scope) {
+
+angular.module('CrossStone').controller('LoginController', function ($scope, $rootScope, $location, localStorageService, OAuthService) {
+
+  $scope.login = function () {
+    OAuthService.popup('github', function (error, result) {
+      if (error) {
+        $location.path('/login');
+      }
+      localStorageService.set('_accessToken', result.access_token);
+      $location.path('/dashboard');
+    });
+  };
+});
+
+angular.module('CrossStone').run(function ($rootScope, $location, OAuthService) {
+
+});
+
+angular.module('CrossStone').controller('AppController', function ($rootScope, localStorageService, $scope) {
 
   $scope.dismiss = function () {
     $rootScope.errorMessage = '';
   };
-}]);
-
-angular.module('CrossStone').controller('DashboardController', function ($scope, api, $rootScope, $location, localStorageService) {
-
-  api.get('user/repos').done(function (repos) {
-    $scope.$apply(function () {
-      $scope.repos = repos;
-    });
-  }).fail(function () {
-    $scope.$apply(function () {
-      localStorageService.remove('_accessToken');
-      $rootScope.errorMessage = 'OAuth.js failed to create API instance.. Sorry :(';
-      $location.path('/login')
-    });
-  });
-
-  api.get('user/orgs').done(function (orgs) {
-    $scope.$apply(function () {
-      $scope.orgs = orgs;
-    });
-  }).fail(function () {
-    $scope.$apply(function () {
-      localStorageService.remove('_accessToken');
-      $rootScope.errorMessage = 'OAuth.js failed to create API instance.. Sorry :(';
-      $location.path('/login')
-    });
-  });
 });
 
-angular.module('CrossStone').controller('LoginController', ['$scope', '$rootScope', '$location', 'localStorageService', function ($scope, $rootScope, $location, localStorageService) {
+angular.module('CrossStone').controller('DashboardController', function ($scope, github, $rootScope, $location, localStorageService) {
 
-  $scope.login = function () {
-    OAuth.popup('github', function (error, result) {
-      if (error) {
-        $scope.$apply(function () {
-          $location.path('/login');
-        });
-      }
-      localStorageService.set('_accessToken', result.access_token);
-      $rootScope.errorMessage = false;
-      $scope.$apply(function () {
-        $location.path('/dashboard');
-      });
-    });
-  };
-}]);
+  github.get('user').then(function (user) {
+    $scope.user = user;
+    console.log(user);
+  });
+  // github.get('user/repos').then(function (repos) {
+  //   $scope.repos = repos;
+  // });
+
+  // github.get('user/orgs').then(function (orgs) {
+  //   $scope.orgs = orgs;
+  // });
+});
