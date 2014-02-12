@@ -38,15 +38,17 @@ angular.module('CrossStone').run(function ($rootScope, $location) {
   OAuth.initialize('qX_3NS1--aUs8WgkyN2XLEXd7jI');
 });
 
-angular.module('CrossStone').controller('AppController', ['$rootScope', 'localStorageService', function ($rootScope, localStorageService) {
+angular.module('CrossStone').controller('AppController', ['$rootScope', 'localStorageService', function ($rootScope, localStorageService, $scope) {
 
+  $scope.dismiss = function () {
+    $rootScope.errorMessage = '';
+  };
 }]);
 
 angular.module('CrossStone').controller('DashboardController', function ($scope, api, $rootScope, $location, localStorageService) {
 
   api.get('user/repos').done(function (repos) {
     $scope.$apply(function () {
-      $rootScope.errorMessage = false;
       $scope.repos = repos;
     });
   }).fail(function () {
@@ -59,7 +61,6 @@ angular.module('CrossStone').controller('DashboardController', function ($scope,
 
   api.get('user/orgs').done(function (orgs) {
     $scope.$apply(function () {
-      $rootScope.errorMessage = false;
       $scope.orgs = orgs;
     });
   }).fail(function () {

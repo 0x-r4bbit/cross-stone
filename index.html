@@ -32,8 +32,8 @@
   </head>
   <body ng-app="CrossStone" ng-cloak>
     <div class="container">
-      <div ng-if="errorMessage">
-        <div class="alert alert-danger" ng-bind="errorMessage"></div>
+      <div ng-if="errorMessage" class="alert alert-danger alert-dismissable">
+        <button ng-click="dismiss()" type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> {{errorMessage}}
       </div>
       <div ng-view></div>
     </div>
