@@ -24,7 +24,7 @@ angular.module('CrossStone').provider('OAuthService', function () {
       create: function (provider, options) {
         var resource = OAuth.create(provider, options),
             instance = {};
-
+        console.dir(resource);
         instance.access_token = resource.access_token;
 
         instance.get = function (opts, opts2) {
@@ -32,7 +32,7 @@ angular.module('CrossStone').provider('OAuthService', function () {
           resource.get(opts, opts2).done(function (response) {
             deferred.resolve(response);
           }).fail(function (err) {
-            deferred.reject(fail);
+            deferred.reject(err);
           });
           return deferred.promise;
         };
@@ -60,7 +60,7 @@ angular.module('CrossStone').config(function ($routeProvider, localStorageServic
           var github = OAuthService.create('github', {
             access_token: localStorageService.get('_accessToken')
           });
-
+          console.dir(github);
           if (github && github.access_token !== null) {
             deferred.resolve(github);
           } else {
@@ -110,6 +110,9 @@ angular.module('CrossStone').controller('DashboardController', function ($scope,
   github.get('user').then(function (user) {
     $scope.user = user;
     console.log(user);
+  }, function () {
+    localStorageService.remove('_accessToken');
+    $location.path('/login');
   });
   // github.get('user/repos').then(function (repos) {
   //   $scope.repos = repos;
